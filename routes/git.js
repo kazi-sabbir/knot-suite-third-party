@@ -76,8 +76,8 @@ router.post("/getAllRepos", function (req, res, next) {
 });
 
 router.get("/webhook",function(req,res,next){
-   console.log(res);
-   console.log(req);
+   console.log(JSON.stringify(res));
+   console.log(JSON.stringify(req));
    res.end(); 
 });
 
