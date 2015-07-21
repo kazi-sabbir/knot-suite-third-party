@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var User = require("./models/user");
 
 var Url = require("url");
 var querystring = require("querystring");
@@ -47,6 +48,16 @@ router.get("/", function (req, res, next) {
             console.log(JSON.stringify(user));
             res.end(JSON.stringify(user));
 
+            var newUser = User({
+               accessToken: accessToken,
+                userData : JSON.stringify(user)
+            });
+
+            newUser.save(function(err) {
+                if (err) throw err;
+
+                console.log('User created!');
+            });
         });
         return;
     }
