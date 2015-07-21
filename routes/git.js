@@ -6,6 +6,7 @@ var querystring = require("querystring");
 
 var Client = require("github");
 var OAuth2 = require("oauth").OAuth2;
+var User = require("./models/user");
 
 var github = new Client({
     version: "3.0.0"
@@ -45,7 +46,19 @@ router.get("/", function (req, res, next) {
             }
             res.writeHead(200);
             console.log(JSON.stringify(user));
-            res.end(JSON.stringify(user));
+            var newUser = new User({
+                accessToken: accessToken,
+                userData: user,
+                connectedRepositories: []
+            });
+
+            newUser.save(function(err) {
+                if (err) throw err;
+
+                console.log('User created!');
+                res.end(JSON.stringify(user));
+            });
+
 
         });
         return;
