@@ -102,8 +102,9 @@ router.post("/webhook",function(req,res,next){
            console.log(err);
        }
         console.log("hook saved");
+        res.end();
     });
-    res.end();
+
 });
 
 router.post("/createWebHook", function (req, res, next) {
