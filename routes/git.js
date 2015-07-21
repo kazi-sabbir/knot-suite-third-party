@@ -78,8 +78,8 @@ router.post("/getAllRepos", function (req, res, next) {
 router.post("/webhook",function(req,res,next){
     console.log("web hook fired");
    console.log(JSON.stringify(res));
-   console.log(JSON.stringify(req.body));
-    console.log(JSON.stringify(req.header));
+   console.log(JSON.stringify(req.body) + "req body");
+    console.log(JSON.stringify(req.header) + "req header");
    res.end(); 
 });
 
