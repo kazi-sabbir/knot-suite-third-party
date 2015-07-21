@@ -80,7 +80,7 @@ router.post("/webhook",function(req,res,next){
    //console.log(JSON.stringify(res));
    //console.log(JSON.stringify(req.body) + "req body");
     console.log(req);
-   //res.end();
+    res.end();
 });
 
 router.post("/createWebHook", function (req, res, next) {
