@@ -97,7 +97,8 @@ router.post("/webhook",function(req,res,next){
     }
 
     var newHook = new Hook({
-        hookData: req.body
+        hookData: req.body,
+        hookHeader: req.headers
     });
 
     newHook.save(function(err){
