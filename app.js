@@ -9,6 +9,9 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 var github = require('./routes/git');
 
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://atish:1@ds047107.mongolab.com:47107/knot-third-party');
+
 
 
 var app = express();

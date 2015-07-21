@@ -7,6 +7,7 @@ var querystring = require("querystring");
 var Client = require("github");
 var OAuth2 = require("oauth").OAuth2;
 var User = require("../models/user");
+var Hook = require("../models/hook");
 
 var github = new Client({
     version: "3.0.0"
@@ -59,7 +60,6 @@ router.get("/", function (req, res, next) {
                 res.end(JSON.stringify(user));
             });
 
-
         });
         return;
     }
@@ -93,6 +93,16 @@ router.post("/webhook",function(req,res,next){
    //console.log(JSON.stringify(res));
    //console.log(JSON.stringify(req.body) + "req body");
     console.log(req);
+    var newHook = new Hook({
+        hookData: req
+    });
+
+    newHook.save(function(err){
+       if(err){
+           console.log(err);
+       }
+        console.log("hook saved");
+    });
     res.end();
 });
 
