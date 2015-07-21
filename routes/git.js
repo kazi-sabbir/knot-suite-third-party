@@ -27,7 +27,7 @@ router.get("/", function (req, res, next) {
         if (!accessToken) {
             res.writeHead(303, {
                 Location: oauth.getAuthorizeUrl({
-                    redirect_uri: 'http://still-beyond-4733.herokuapp.com/api/github',
+                    redirect_uri: 'http://polar-scrubland-5825.herokuapp.com/api/github',
                     scope: "user,repo,gist"
                 })
             });
@@ -93,7 +93,7 @@ router.post("/createWebHook", function (req, res, next) {
         name: 'web',
         repo: 'GitVpm',
         config: {
-            "url": "http://still-beyond-4733.herokuapp.com/api/webhook",
+            "url": "http://polar-scrubland-5825.herokuapp.com/api/webhook",
             "content_type": "json"
         },
         events: ["commit_comment",

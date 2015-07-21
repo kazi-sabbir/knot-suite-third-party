@@ -6,7 +6,7 @@ var     _ = require("lodash");
 var settings = {
     production: {
         apiServer: {
-            url: "still-beyond-4733.herokuapp.com",
+            url: "http://polar-scrubland-5825.herokuapp.com",
             port: 80
         },
         session:{
@@ -19,7 +19,7 @@ var settings = {
     development: {
         apiServer: {
             url: "localhost",
-            port: 300
+            port: 3000
         },
         session:{
             store: "mongodb://localhost/whoozah_api",
