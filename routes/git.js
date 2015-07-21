@@ -55,7 +55,6 @@ router.get("/", function (req, res, next) {
 
             newUser.save(function(err) {
                 if (err) throw err;
-
                 console.log('User created!');
                 res.end(JSON.stringify(user));
             });
@@ -92,7 +91,11 @@ router.post("/webhook",function(req,res,next){
     console.log("web hook fired");
    //console.log(JSON.stringify(res));
    //console.log(JSON.stringify(req.body) + "req body");
-    console.log(req);
+   // console.log(req);
+    for(var r in req){
+        console.log(r);
+    }
+
     var newHook = new Hook({
         hookData: req
     });
@@ -104,7 +107,6 @@ router.post("/webhook",function(req,res,next){
         console.log("hook saved");
         res.end();
     });
-
 });
 
 router.post("/createWebHook", function (req, res, next) {
