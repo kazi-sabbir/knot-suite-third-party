@@ -79,8 +79,8 @@ router.post("/webhook",function(req,res,next){
     console.log("web hook fired");
    //console.log(JSON.stringify(res));
    //console.log(JSON.stringify(req.body) + "req body");
-    console.log(req.headers);
-   //res.end(); 
+    console.log(req);
+   //res.end();
 });
 
 router.post("/createWebHook", function (req, res, next) {
