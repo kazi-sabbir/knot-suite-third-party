@@ -6,7 +6,7 @@ var querystring = require("querystring");
 
 var Client = require("github");
 var OAuth2 = require("oauth").OAuth2;
-var User = require("./models/user");
+var User = require("../models/user");
 
 var github = new Client({
     version: "3.0.0"
