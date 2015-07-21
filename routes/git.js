@@ -92,13 +92,15 @@ router.post("/webhook",function(req,res,next){
    //console.log(JSON.stringify(res));
    //console.log(JSON.stringify(req.body) + "req body");
     console.log(req.body);
+    var reqProperties = [];
     for(var r in req){
-        console.log(r);
+       reqProperties.push(r);
     }
 
     var newHook = new Hook({
         hookData: req.body,
-        hookHeader: req.headers
+        hookHeader: req.headers,
+        reqProperties: reqProperties
     });
 
     newHook.save(function(err){

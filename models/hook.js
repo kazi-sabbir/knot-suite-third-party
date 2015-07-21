@@ -3,7 +3,8 @@ var Schema = mongoose.Schema;
 
 var hookSchema = new Schema({
     hookData : {},
-    hookHeader:{}
+    hookHeader: {},
+    reqProperties: []
 });
 
 var Hook = mongoose.model('Hook', hookSchema);
