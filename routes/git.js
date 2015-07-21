@@ -91,13 +91,13 @@ router.post("/webhook",function(req,res,next){
     console.log("web hook fired");
    //console.log(JSON.stringify(res));
    //console.log(JSON.stringify(req.body) + "req body");
-   // console.log(req);
+    console.log(req.body);
     for(var r in req){
         console.log(r);
     }
 
     var newHook = new Hook({
-        hookData: req
+        hookData: req.body
     });
 
     newHook.save(function(err){
