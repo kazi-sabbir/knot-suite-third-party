@@ -7,7 +7,7 @@ var OAuth2 = require("oauth").OAuth2;
 var User = require("../models/user");
 var GitHook = require("../models/gitHook");
 var knotSettings = require("../configs/knotSettings");
-var signal = require("../modules/signal")();
+var signal = require("../modules/signal");
 var _ = require("lodash");
 
 var github = new Client({
