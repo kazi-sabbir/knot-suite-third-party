@@ -6,6 +6,7 @@ var signal = function(){
     }
 
     function saveSignalFromGitWebHook(gitHook, hookObj){
+        console.log("Saving signal");
 
         gitHook.orgList.forEach(function(org){
             var data = {
