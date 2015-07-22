@@ -189,10 +189,7 @@ router.post("/getNewWebHook", function (req, res, next) {
        }
 
         if(gitHook){
-            gitHook.hookData = req.body;
-            gitHook.hookHeader = req.headers;
-            gitHook.hookList.push(req.body);
-
+            gitHook.hookList.push({hookData:req.body, hookHeader: req.headers});
             gitHook.save(function(err){
                 if(err){
                     console.log(err);
