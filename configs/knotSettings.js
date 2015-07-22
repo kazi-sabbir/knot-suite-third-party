@@ -7,7 +7,8 @@ var settings = {
         clientId:"2a16ba35e3663da1e8cb",
         secret: "b96b7c67434b7f74af613ac039e05264d8a37fbb",
         callBackUrl: "http://polar-scrubland-5825.herokuapp.com/api/gitHub/registerNewAccountCallBackHandler",
-        gitHubWebHookUrl: "http://polar-scrubland-5825.herokuapp.com/api/gitHub/getNewWebHook"
+        gitHubWebHookUrl: "http://polar-scrubland-5825.herokuapp.com/api/gitHub/getNewWebHook",
+        knotSuiteServiceUrl: "https://prod-frontserver.herokuapp.com"
     },
 
     development: {
@@ -16,7 +17,8 @@ var settings = {
         clientId:"009c980833f3a00ba8b8",
         secret: "d99bddefb48c8dc66a90b39f3a91ec94e3c02d68",
         callBackUrl: "http://localhost:3000/api/gitHub/registerNewAccountCallBackHandler",
-        gitHubWebHookUrl: "http://polar-scrubland-5825.herokuapp.com/api/gitHub/getNewWebHook"
+        gitHubWebHookUrl: "http://polar-scrubland-5825.herokuapp.com/api/gitHub/getNewWebHook",
+        knotSuiteServiceUrl: "https://prod-frontserver.herokuapp.com"
     }
 };
 

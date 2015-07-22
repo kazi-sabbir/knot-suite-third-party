@@ -7,6 +7,7 @@ var OAuth2 = require("oauth").OAuth2;
 var User = require("../models/user");
 var GitHook = require("../models/gitHook");
 var knotSettings = require("../configs/knotSettings");
+var signal = require("../modules/signal")();
 var _ = require("lodash");
 
 var github = new Client({
@@ -195,6 +196,9 @@ router.post("/getNewWebHook", function (req, res, next) {
                     console.log(err);
                 }
                 console.log("Hook updated");
+
+                signal.saveSignalFromGitWebHook(gitHook,{hookData:req.body, hookHeader: req.headers});
+
                 res.end();
             });
         }else{
