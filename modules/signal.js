@@ -44,7 +44,7 @@ var signal = function(){
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: data
+                body: JSON.stringify(data)
             },function(err,res,body){
                 if(err){
                     console.log(err);
