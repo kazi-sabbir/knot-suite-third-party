@@ -6,7 +6,8 @@ var hookSchema = new Schema({
     hookHeader: {},
     repoId: {type: Number},
     orgList: [],
-    knotAccessToken: String
+    knotAccessToken: String,
+    hookList: []
 });
 
 var GitHook = mongoose.model('GitHook', hookSchema);
