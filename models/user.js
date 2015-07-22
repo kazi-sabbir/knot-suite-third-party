@@ -2,11 +2,12 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var userSchema = new Schema({
-    accessToken: String,
+    gitAccessToken: String,
+    knotSuiteAccessToken: String,
     userData: {
 
     },
-    connectedRepositories:Array
+    connectedRepositories: Array
 });
 
 var User = mongoose.model('User', userSchema);

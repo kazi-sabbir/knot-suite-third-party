@@ -8,9 +8,10 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var github = require('./routes/git');
+var knotSettings = require("./configs/knotSettings");
 
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://atish:1@ds047107.mongolab.com:47107/knot-third-party');
+mongoose.connect(knotSettings.dbUrl);
 
 
 
@@ -30,7 +31,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/users', users);
-app.use('/api',github);
+app.use('/api/gitHub',github);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

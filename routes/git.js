@@ -1,211 +1,330 @@
 var express = require('express');
 var router = express.Router();
-
 var Url = require("url");
 var querystring = require("querystring");
-
 var Client = require("github");
 var OAuth2 = require("oauth").OAuth2;
 var User = require("../models/user");
-var Hook = require("../models/hook");
+var GitHook = require("../models/gitHook");
+var knotSettings = require("../configs/knotSettings");
+var _ = require("lodash");
 
 var github = new Client({
     version: "3.0.0"
 });
 
-var clientId = "2a16ba35e3663da1e8cb";
-var secret = "b96b7c67434b7f74af613ac039e05264d8a37fbb";
+var clientId = knotSettings.clientId;
+var secret = knotSettings.secret;
 var oauth = new OAuth2(clientId, secret, "https://github.com/", "login/oauth/authorize", "login/oauth/access_token");
-var accessToken = "";
 
-router.get("/", function (req, res, next) {
+router.get("/registerNewAccount", function (req, res, next) {
     var url = Url.parse(req.url);
     var path = url.pathname;
-    console.log("path " + path);
+    var knotSuiteAccessToken = req.query.knotSuiteAccessToken;
 
-    if (path == "/" || path.match(/^\/user\/?$/)) {
-        // redirect to github if there is no access token
-        console.log("path " + path);
-        if (!accessToken) {
-            res.writeHead(303, {
-                Location: oauth.getAuthorizeUrl({
-                    redirect_uri: 'http://polar-scrubland-5825.herokuapp.com/api/github',
-                    scope: "user,repo,gist"
-                })
-            });
-
-            res.end();
-            return;
-        }
-                
-        // use github API            
-        github.user.get({}, function (err, user) {
+    User.findOne(
+        {
+            'knotSuiteAccessToken': knotSuiteAccessToken
+        },
+        function (err, user) {
             if (err) {
-                res.writeHead(err.code);
-                res.end(err + "");
+                console.log(err);
+                res.send({
+                    message: 'Database error',
+                    code: -1,
+                    error: err
+                });
+            }
+            if (!user) {
+                res.writeHead(303, {
+                    Location: oauth.getAuthorizeUrl({
+                        redirect_uri: knotSettings.callBackUrl + "?knotSuiteAccessToken=" + knotSuiteAccessToken + "",
+                        scope: "repo"
+                    })
+                });
+
+                res.end();
                 return;
             }
-            res.writeHead(200);
-            console.log(JSON.stringify(user));
-            var newUser = new User({
-                accessToken: accessToken,
-                userData: user,
-                connectedRepositories: []
+
+            res.send({
+                message: "User Already registered",
+                code: 1,
+                data: user
             });
-
-            newUser.save(function(err) {
-                if (err) throw err;
-                console.log('User created!');
-                res.end(JSON.stringify(user));
-            });
-
-        });
-        return;
-    }
-
-
-    res.writeHead(404);
-    res.end("404 - Not found");
-});
-
-
-router.post("/getAllRepos", function (req, res, next) {
-    var accessToken = req.body.accessToken;
-    github.authenticate({
-        type: "oauth",
-        token: accessToken
-    });
-
-    github.repos.getAll({
-
-    }, function (err, data) {
-            if (err) {
-                console.log(err);
-            }
-            console.log(JSON.stringify(data));
-            res.send(JSON.stringify(data));
+            return;
         });
 });
 
-router.post("/webhook",function(req,res,next){
-    console.log("web hook fired");
-   //console.log(JSON.stringify(res));
-   //console.log(JSON.stringify(req.body) + "req body");
-    console.log(req.body);
-    var reqProperties = [];
-    for(var r in req){
-       reqProperties.push(r);
-    }
-
-    var newHook = new Hook({
-        hookData: req.body,
-        hookHeader: req.headers,
-        reqProperties: reqProperties
-    });
-
-    newHook.save(function(err){
-       if(err){
-           console.log(err);
-       }
-        console.log("hook saved");
-
-    });
-
-    res.end();
-});
-
-router.post("/createWebHook", function (req, res, next) {
-    var accessToken = req.body.accessToken;
-    github.authenticate({
-        type: "oauth",
-        token: accessToken
-    });
-
-    github.repos.createHook({
-        user: 'dipongkor',
-        name: 'web',
-        repo: 'GitVpm',
-        config: {
-            "url": "http://polar-scrubland-5825.herokuapp.com/api/webhook",
-            "content_type": "json"
-        },
-        events: ["commit_comment",
-            "create",
-            "delete",
-            "deployment",
-            "deployment_status",
-            "download",
-            "follow",
-            "fork",
-            "fork_apply",
-            "gist",
-            "gollum",
-            "issue_comment",
-            "issues",
-            "member",
-            "public",
-            "pull_request",
-            "pull_request_review_comment",
-            "push",
-            "release",
-            "status",
-            "team_add",
-            "watch"]
-    }, function (err, data) {
-            if (err) {
-                console.log(err);
-                res.send(JSON.stringify(err));
-            }
-            res.send(JSON.stringify(data));
-
-        });
-
-});
-
-
-router.get('/github', function (req, res, next) {
-    console.log("call back fired");
-
+router.get('/registerNewAccountCallBackHandler', function (req, res, next) {
     var url = Url.parse(req.url);
     var query = querystring.parse(url.query);
-    oauth.getOAuthAccessToken(query.code, {}, function (err, access_token, refresh_token) {
+    var knotSuiteAccessToken = query.knotSuiteAccessToken;
 
+    User.findOne({
+        knotSuiteAccessToken: knotSuiteAccessToken
+    }, function (err, user) {
         if (err) {
             console.log(err);
-            res.writeHead(500);
-            res.end(err + "");
-            return;
+            res.send({
+                message: "Database error",
+                code: -1,
+                error: err
+            });
         }
+        if (!user) {
+            oauth.getOAuthAccessToken(query.code, {}, function (err, access_token, refresh_token) {
 
-        accessToken = access_token;
+                if (err) {
+                    console.log(err);
+                    res.writeHead(500);
+                    res.send({
+                        message: "GitHub error",
+                        code: -1,
+                        error: err
+                    });
+                    return;
+                }
 
-        console.log("access token " + accessToken);
-        // authenticate github API
-        github.authenticate({
-            type: "oauth",
-            token: accessToken
-        });
-              
-        //redirect back
-        
-        github.user.get({}, function (err, user) {
+                console.log("access token " + access_token);
+
+                github.authenticate({
+                    type: "oauth",
+                    token: access_token
+                });
+
+                github.user.get({}, function (err, user) {
+                    if (err) {
+                        res.writeHead(err.code);
+                        res.send({
+                            message: "User not found",
+                            code: -1,
+                            error: err
+                        });
+                        return;
+                    }
+
+                    var newUser = new User({
+                        gitAccessToken: access_token,
+                        knotSuiteAccessToken: knotSuiteAccessToken,
+                        userData: user
+                    });
+
+                    newUser.save(function (err) {
+                        if (err) {
+                            console.log(err);
+                            res.send({
+                                message: "Database error",
+                                code: -1,
+                                error: err
+                            });
+                        }
+                        res.send({
+                            message: "User registered successfully",
+                            code: 1,
+                            data: newUser
+                        });
+                    });
+
+                });
+            });
+        }else{
+            res.send({
+                message: "User already registered",
+                code: 1,
+                data: user
+            });
+        }
+    });
+});
+
+router.post("/getAllRepos", function (req, res, next) {
+    var knotSuiteAccessToken = req.body.knotSuiteAccessToken;
+
+    User.findOne({
+        knotSuiteAccessToken: knotSuiteAccessToken
+    }, function (err, user) {
+        if (err) {
+            console.log(err);
+            res.send({
+                message: "Database Error",
+                code: -1,
+                error: err
+            });
+        }
+        if (user) {
+            github.authenticate({
+                type: "oauth",
+                token: user.gitAccessToken
+            });
+
+            github.repos.getAll({
+                type: 'owner'
+            }, function (err, data) {
+                if (err) {
+                    console.log(err);
+                }
+                console.log(JSON.stringify(data));
+
+                //var result = _.filter(data,'id')
+                res.send(data);
+            });
+        } else {
+            res.send({
+                message: "User not found",
+                code: 0,
+                error: null
+            });
+        }
+    });
+});
+
+router.post("/getNewWebHook", function (req, res, next) {
+    console.log("web hook fired");
+
+    GitHook.findOne({repoId: req.body.repository.id},function(err,gitHook){
+       if(err){
+           console.log(err);
+           req.end();
+       }
+
+        if(gitHook){
+            gitHook.hookData = req.body;
+            gitHook.hookHeader = req.headers;
+
+            gitHook.save(function(err){
+                if(err){
+                    console.log(err);
+                }
+                console.log("Hook updated");
+                res.end();
+            });
+        }else{
+            console.log("Hook not found");
+            req.end();
+        }
+    });
+});
+
+router.post("/createNewWebHook", function (req, res, next) {
+    var newWebHookParams = {
+        knotSuiteAccessToken: req.body.knotSuiteAccessToken,
+        orgList: req.body.orgList,
+        gitRepo: req.body.gitRepo,
+        gitEvents: req.body.gitEvents
+    };
+
+    User.findOne(
+        {
+            knotSuiteAccessToken: newWebHookParams.knotSuiteAccessToken
+        }, function (err, user) {
             if (err) {
-                res.writeHead(err.code);
-                res.end(err + "eroor");
-                return;
+                console.log(err);
+                res.send({
+                    message: "Database Error",
+                    code: -1,
+                    error: err
+                });
             }
-            console.log(JSON.stringify(user));
-            console.log("user found in call back");
 
-        });
+            if (user) {
+                github.authenticate({
+                    type: "oauth",
+                    token: user.gitAccessToken
+                });
 
-        res.writeHead(303, {
-            Location: "/"
-        });
-        res.end();
+                github.repos.createHook({
+                    user: user.userData.login,
+                    name: "web",
+                    repo: newWebHookParams.gitRepo.name,
+                    config: {
+                        "url": knotSettings.gitHubWebHookUrl,
+                        "content_type": "json"
+                    },
+                    events: newWebHookParams.gitEvents
+                }, function (err, data) {
+                    if (err) {
+                        console.log(err);
+                        res.send(
+                            {
+                                message: "GitHub error",
+                                code: -1,
+                                error: err
+                            }
+                        );
+                    } else {
+                        newWebHookParams.gitRepo.hookData = data;
+                        user.connectedRepositories.push(newWebHookParams.gitRepo)
+                        user.save(function (err) {
+                            if (err) {
+                                console.log(err);
+                            }
+
+                            var newGitHook = new GitHook({
+                                hookData: {},
+                                hookHeader: {},
+                                repoId: newWebHookParams.gitRepo.id,
+                                orgList: newWebHookParams.orgList,
+                                knotAccessToken: newWebHookParams.knotSuiteAccessToken
+                            });
+
+                            newGitHook.save(function(err){
+                                if(err){
+                                    console.log(err);
+                                }
+                                res.send({
+                                    message: "GitHub web hook created successfully",
+                                    code: 1,
+                                    data: user
+                                });
+                            });
+                        })
+                    }
+                });
+            }
+        }
+    );
+});
+
+router.post("/deleteHook",function(req,res,next){
+    //console.log(req.body);
+    github.authenticate({
+        type: "oauth",
+        token: req.body.gitAccessToken
     });
 
+    github.repos.deleteHook(
+        {
+            user: req.body.user,
+            repo: req.body.repo,
+            id: req.body.hookId
+        },function(err,data){
+            if(err){
+                //console.log(req)
+                res.send(err);
+            }else{
 
+
+                User.findOne({gitAccessToken: req.body.gitAccessToken},function(err,user){
+                   if(user){
+                       var repo = _.find(user.connectedRepositories,{id: req.body.repoId});
+                       console.log(repo);
+                       if(repo){
+                           var index = user.connectedRepositories.indexOf(repo);
+                           user.connectedRepositories.splice(index,1);
+                           user.save(function(err){
+                               if(err){
+                                   res.send(data);
+                               }else{
+                                   res.send(user);
+                               }
+                           })
+                       }
+                   }
+                });
+            }
+        }
+    );
 });
 
 module.exports = router;
