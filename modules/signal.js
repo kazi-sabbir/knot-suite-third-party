@@ -32,8 +32,8 @@ var signal = function(){
                 attachments: [],
                 orgId: org,
                 visibility: {
-                    scope: "Self",
-                    privacy: "AllConnection"
+                    scope: "Organization",
+                    privacy: "AllEmployee"
                 }
             };
 
