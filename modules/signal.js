@@ -13,18 +13,18 @@ var signal = function () {
                     + hookObj.hookData.comment.body;
                 return {
                     content: content,
-                    ogDataUrl:  hookObj.hookData.issue.html_url
+                    ogDataUrl: hookObj.hookData.issue.html_url
                 };
                 break;
             case "push":
-                var content = "[" + hookObj.hookData.repository.name + ": "+hookObj.hookData.ref.substr(hookObj.hookData.ref.lastIndexOf("/")+1, hookObj.hookData.ref.length)+"] " + "1 new commit by " + "\n"
-                + hookObj.hookData.commits[0].committer.name +"\n"
-                    +"Commit message: "+ hookObj.hookData.head_commit.message;
+                var content = "[" + hookObj.hookData.repository.name + ": " + hookObj.hookData.ref.substr(hookObj.hookData.ref.lastIndexOf("/") + 1, hookObj.hookData.ref.length) + "] " + "1 new commit by " + "\n"
+                    + hookObj.hookData.commits[0].committer.name + "\n"
+                    + "Commit message: " + hookObj.hookData.head_commit.message;
                 return {
                     content: content,
-                    ogDataUrl:  hookObj.hookData.head_commit.url
+                    ogDataUrl: hookObj.hookData.head_commit.url
                 };
-            break;
+                break;
         }
     }
 
@@ -38,6 +38,11 @@ var signal = function () {
                 accessToken: gitHook.knotAccessToken,
                 content: signalData.content,
                 spaceId: null,
+                thirdPartyService: {
+                    type: 'GitHub',
+                    icon: '',
+                    name: 'GitHub'
+                },
                 rootId: null,
                 verb: null,
                 object: null,
@@ -63,7 +68,6 @@ var signal = function () {
             };
 
 
-
             request({
                 url: knotSettings.knotSuiteServiceUrl + "/api/service/linkService/ogData",
                 method: "POST",
@@ -71,37 +75,37 @@ var signal = function () {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({"url": signalData.ogDataUrl})
-            },function(err,res,body){
-               if(!res.code){
+            }, function (err, res, body) {
+                if (!res.code) {
 
-                   var ogDataResponse = JSON.parse(res.body);
-                   console.log(ogDataResponse);
+                    var ogDataResponse = JSON.parse(res.body);
+                    console.log(ogDataResponse);
 
-                   var ogdataObject = {
-                       ogTitle: ogDataResponse.ogData.title,
-                       ogDescription: ogDataResponse.ogData.description,
-                       ogImage: ogDataResponse.ogData.images.length >0 ?  ogDataResponse.ogData.images[0] : "",
-                       isOgData: true,
-                       url: signalData.ogDataUrl
-                   };
+                    var ogdataObject = {
+                        ogTitle: ogDataResponse.ogData.title,
+                        ogDescription: ogDataResponse.ogData.description,
+                        ogImage: ogDataResponse.ogData.images.length > 0 ? ogDataResponse.ogData.images[0] : "",
+                        isOgData: true,
+                        url: signalData.ogDataUrl
+                    };
 
-                   data.ogdataObject = ogdataObject;
+                    data.ogdataObject = ogdataObject;
 
-                   request({
-                       url: knotSettings.knotSuiteServiceUrl + "/api/signals/saveSignal",
-                       method: "POST",
-                       headers: {
-                           "Content-Type": "application/json"
-                       },
-                       body: JSON.stringify(data)
-                   }, function (err, res, body) {
-                       if (err) {
-                           console.log(err);
-                       } else {
-                           console.log(res.body);
-                       }
-                   });
-               }
+                    request({
+                        url: knotSettings.knotSuiteServiceUrl + "/api/signals/saveSignal",
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(data)
+                    }, function (err, res, body) {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            console.log(res.body);
+                        }
+                    });
+                }
             });
 
         });
