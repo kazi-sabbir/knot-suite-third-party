@@ -1,17 +1,28 @@
 var request = require("request");
 var knotSettings = require("../configs/knotSettings");
-var signal = function(){
+var signal = function () {
     return {
         saveSignalFromGitWebHook: saveSignalFromGitWebHook
     }
 
-    function saveSignalFromGitWebHook(gitHook, hookObj){
+    function composeSignalContent(hookObj) {
+        switch (hookObj.hookHeader["x-github-event"]) {
+            case "issue_comment":
+                var content = "[" + hookObj.hookData.repository.full_name + "] " + "New comment on issue " + hookObj.hookData.issue.html_url + "\n"
+                    + "Commented by " + hookObj.hookData.comment.user.login + "\n"
+                    + hookObj.hookData.comment.body;
+                return content;
+                break;
+        }
+    }
+
+    function saveSignalFromGitWebHook(gitHook, hookObj) {
         console.log("Saving signal");
 
-        gitHook.orgList.forEach(function(org){
+        gitHook.orgList.forEach(function (org) {
             var data = {
                 accessToken: gitHook.knotAccessToken,
-                content: "EventType : " + hookObj.hookHeader["x-github-event"] + "\n" + "Source Repo : " +  hookObj.hookData.repository.name,
+                content: composeSignalContent(hookObj),
                 spaceId: null,
                 rootId: null,
                 verb: null,
@@ -38,17 +49,17 @@ var signal = function(){
             };
 
             request({
-                url: knotSettings.knotSuiteServiceUrl +"/api/signals/saveSignal",
+                url: knotSettings.knotSuiteServiceUrl + "/api/signals/saveSignal",
                 method: "POST",
                 data: data,
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify(data)
-            },function(err,res,body){
-                if(err){
+            }, function (err, res, body) {
+                if (err) {
                     console.log(err);
-                }else{
+                } else {
                     console.log(res.body);
                 }
             });
