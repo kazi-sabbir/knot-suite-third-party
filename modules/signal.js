@@ -73,12 +73,12 @@ var signal = function () {
                 body: JSON.stringify({"url": signalData.ogDataUrl})
             },function(err,res,body){
                if(!res.code){
-                   console.log(res.ogData);
+                   console.log(res.body);
 
                    var ogdataObject = {
-                       ogTitle: res.ogData.title,
-                       ogDescription: res.ogData.description,
-                       ogImage: res.ogData.images.length >0 ?  res.ogData.images[0] : "",
+                       ogTitle: res.body.ogData.title,
+                       ogDescription: res.body.ogData.description,
+                       ogImage: res.body.ogData.images.length >0 ?  res.ogData.images[0] : "",
                        isOgData: true,
                        url: signalData.ogDataUrl
                    };
