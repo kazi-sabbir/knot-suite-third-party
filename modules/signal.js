@@ -80,7 +80,7 @@ var signal = function () {
                    var ogdataObject = {
                        ogTitle: ogDataResponse.ogData.title,
                        ogDescription: ogDataResponse.ogData.description,
-                       ogImage: ogDataResponse.ogData.images.length >0 ?  res.ogData.images[0] : "",
+                       ogImage: ogDataResponse.ogData.images.length >0 ?  ogDataResponse.ogData.images[0] : "",
                        isOgData: true,
                        url: signalData.ogDataUrl
                    };
