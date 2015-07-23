@@ -17,7 +17,7 @@ var signal = function () {
                 };
                 break;
             case "push":
-                var content = "[" + hookObj.hookData.repository.full_name + ": "+hookObj.hookData.ref.substr(hookObj.hookData.ref.lastIndexOf("/")+1, hookObj.hookData.ref)+"] " + "1 new commit by " + "\n"
+                var content = "[" + hookObj.hookData.repository.name + ": "+hookObj.hookData.ref.substr(hookObj.hookData.ref.lastIndexOf("/")+1, hookObj.hookData.ref.length)+"] " + "1 new commit by " + "\n"
                 + hookObj.hookData.commits[0].committer.name +"\n"
                     +"Commit message: "+ hookObj.hookData.head_commit.message;
                 return {
