@@ -4,7 +4,7 @@ var Url = require("url");
 var querystring = require("querystring");
 var Client = require("github");
 var OAuth2 = require("oauth").OAuth2;
-var User = require("../models/user");
+var User = require("../models/gitUser");
 var GitHook = require("../models/gitHook");
 var knotSettings = require("../configs/knotSettings");
 var signal = require("../modules/signal");
@@ -213,7 +213,9 @@ router.post("/createNewWebHook", function (req, res, next) {
         knotSuiteAccessToken: req.body.knotSuiteAccessToken,
         orgList: req.body.orgList,
         gitRepo: req.body.gitRepo,
-        gitEvents: req.body.gitEvents
+        gitEvents: req.body.gitEvents,
+        hashTags: req.body.hashTags,
+        iconUrl: req.body.iconUrl
     };
 
     User.findOne(
